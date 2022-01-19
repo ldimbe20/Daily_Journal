@@ -10,7 +10,7 @@ class Entry():
         self.concepts = concepts #breed is the field that stores the value breed
         self.mood_id = mood_id #status is the field that stores field
         self.date = date #location is the field that stores value of location
-       
+        self.mood = None
         
 # entry_one = Entry(1, "I hope I can do this", "Python", 1, 10/10/22)
 

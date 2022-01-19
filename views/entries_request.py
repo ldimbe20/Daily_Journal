@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Entry
+from models import Entry, Mood
 
         
 def get_all_entries():
@@ -13,8 +13,16 @@ def get_all_entries():
 
         # Write the SQL query to get the information you want
         db_cursor.execute("""
-        SELECT *
-        FROM entry 
+        SELECT
+            a.id,
+            a.entries,
+            a.concepts,
+            a.mood_id,
+            a.date,
+            m.label mood_label
+        FROM Entry a
+        JOIN Mood m
+            ON m.id = a.mood_id
         """)
 
         # Initialize an empty list to hold all entries representations
@@ -32,6 +40,10 @@ def get_all_entries():
             # Animal class above.
             entry = Entry(row['id'], row['entries'], row['concepts'],
                             row['mood_id'], row['date'])
+            
+            mood = Mood(row['id'], row['mood_label'])
+            
+            entry.mood=mood.__dict__
 
             entries.append(entry.__dict__)
 
@@ -46,8 +58,16 @@ def get_single_entry(id):
         # Use a ? parameter to inject a variable's value
         # into the SQL statement.
         db_cursor.execute("""
-        SELECT *
-        FROM entry a
+        SELECT
+            a.id,
+            a.entries,
+            a.concepts,
+            a.mood_id,
+            a.date,
+            m.label mood_label
+        FROM Entry a
+        JOIN Mood m
+            ON m.id = a.mood_id
         WHERE a.id = ?
         """, ( id, ))
 
@@ -56,6 +76,10 @@ def get_single_entry(id):
 
         # Create an location instance from the current row
         entry = Entry(data['id'], data['entries'], data['concepts'], ['mood_id'], data['date'])
+        
+        mood = Mood(data['id'], data['mood_label'])
+            
+        entry.mood=mood.__dict__
 
         return json.dumps(entry.__dict__)
     
