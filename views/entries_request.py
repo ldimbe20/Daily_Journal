@@ -14,7 +14,7 @@ def get_all_entries():
         # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT *
-        FROM entry a
+        FROM entry 
         """)
 
         # Initialize an empty list to hold all entries representations
@@ -46,12 +46,7 @@ def get_single_entry(id):
         # Use a ? parameter to inject a variable's value
         # into the SQL statement.
         db_cursor.execute("""
-        SELECT
-            a.id,
-            a.entries,
-            a.concepts,
-            a.mood_id,
-            a.date
+        SELECT *
         FROM entry a
         WHERE a.id = ?
         """, ( id, ))
@@ -63,3 +58,35 @@ def get_single_entry(id):
         entry = Entry(data['id'], data['entries'], data['concepts'], ['mood_id'], data['date'])
 
         return json.dumps(entry.__dict__)
+    
+    
+def get_search_entry(searchTerm):
+        with sqlite3.connect("./kennel.sqlite3") as conn:
+            conn.row_factory = sqlite3.Row
+            db_cursor = conn.cursor()
+
+            # Use a ? parameter to inject a variable's value
+            # into the SQL statement.
+            db_cursor.execute("""
+            SELECT *
+            FROM entry a
+            CONTAINS searchTerm = ?
+            """, ( searchTerm, ))
+
+        # Load the single result into memory
+        data = db_cursor.fetchone()
+
+        # Create an location instance from the current row
+        entry = Entry(data['id'], data['entries'], data['concepts'], ['mood_id'], data['date'])
+
+        return json.dumps(entry.__dict__)
+    
+    
+def delete_entry(id):
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        DELETE FROM entry
+        WHERE id = ?
+        """, (id, ))
