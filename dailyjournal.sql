@@ -39,3 +39,18 @@ SELECT
 	a.date
 FROM entry a
 -- WHERE a.id = 1
+
+SELECT
+    a.id,
+	a.entries,
+    a.concepts,
+    a.mood_id,
+	a.date,
+    m.label mood_label
+FROM Entry a
+JOIN Mood m
+    ON m.id = a.mood_id
+
+
+
+	
