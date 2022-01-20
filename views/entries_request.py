@@ -104,7 +104,32 @@ def get_search_entry(searchTerm):
         entry = Entry(data['id'], data['entries'], data['concepts'], ['mood_id'], data['date'])
 
         return json.dumps(entry.__dict__)
-    
+
+def create_entry(new_entry):
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        INSERT INTO Entry
+            ( entries, concepts, mood_id, date )
+        VALUES
+            ( ?, ?, ?, ?);
+        """, ( new_entry['entries'],
+              new_entry['concepts'], new_entry['mood_id'],
+              new_entry['date'], ))
+
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
+
+        # Add the `id` property to the entry dictionary that
+        # was sent by the client so that the client sees the
+        # primary key in the response.
+        new_entry['id'] = id
+
+
+    return json.dumps(new_entry)    
     
 def delete_entry(id):
     with sqlite3.connect("./kennel.sqlite3") as conn:

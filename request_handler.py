@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from views import get_all_entries, get_single_entry, delete_entry, get_search_entry
+from views import get_all_entries, get_single_entry, delete_entry, get_search_entry, create_entry
 from views import get_single_mood, get_all_moods
 
 
@@ -105,8 +105,28 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "entries":
             delete_entry(id)
             
-            
-    
+    def do_POST(self):
+        self._set_headers(201)
+        content_len = int(self.headers.get('content-length', 0)) #content_len = the length of the item you are posting 
+        post_body = self.rfile.read(content_len) #post_body equals the read file of content_len from above
+        
+
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body) #changing the post_body gathered from above to a dictionary through json.loads.
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path) #getting the response which is a dictionary
+
+        # Initialize new animal
+        new_entry = None
+
+        # Add a new animal to the list. Don't worry about
+        # the orange squiggle, you'll define the create_animal
+        # function next.
+        if resource == "entries":
+            new_entry = create_entry(post_body)       
+      
+        self.wfile.write(f"{new_entry}".encode())
         
         
 def main():
