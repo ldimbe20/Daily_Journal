@@ -50,6 +50,35 @@ def get_all_entries():
     # Use `json` package to properly serialize list as JSON
     return json.dumps(entries)
 
+def update_entry(id, new_entry):
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE Entry
+            SET
+                entries = ?,
+                concepts = ?,
+                mood_id = ?,
+                date = ?
+        WHERE id = ?
+        """, (new_entry['entries'], new_entry['concepts'],
+              new_entry['mood_id'], new_entry['date'], id, ))
+
+        # Were any rows affected?
+        # Did the client send an `id` that exists?
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        # Forces 404 response by main module
+        return False
+    else:
+        # Forces 204 response by main module
+        return True
+
+
+
+
 def get_single_entry(id):
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row

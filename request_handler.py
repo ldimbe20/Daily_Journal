@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-from views import get_all_entries, get_single_entry, delete_entry, get_search_entry, create_entry
+from views import get_all_entries, get_single_entry, delete_entry, get_search_entry, create_entry, update_entry
 from views import get_single_mood, get_all_moods
 
 
@@ -71,7 +71,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         # Parse the URL and capture the tuple that is returned
         (resource, id) = self.parse_url(self.path)
-        (resource, searchTerm) = self.parse_url(self.path)# the resource = the url 
+        # (resource, searchTerm) = self.parse_url(self.path)# the resource = the url 
         #aka animal or locations and id equals the id of it. If there isn't an
         #id then line 86 else will pass
 
@@ -128,6 +128,27 @@ class HandleRequests(BaseHTTPRequestHandler):
       
         self.wfile.write(f"{new_entry}".encode())
         
+    def do_PUT(self):
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        success = False
+
+        if resource == "entries":
+            success = update_entry(id, post_body)
+        # rest of the elif's
+
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+
+        self.wfile.write("".encode())
+            
         
 def main():
     """Starts the server on port 8088 using the HandleRequests class
